@@ -1,0 +1,101 @@
+from manim import *
+from manim import *
+
+class GapKPart1(Scene):
+
+    def construct(self):
+        self.camera.background_color = BLACK
+        title = Text(
+            "Structural Correspondence Between Gap-k Integer Partitions and Degenerate Graphs",
+            font_size=28,
+            color=WHITE
+        ).to_edge(UP).scale(0.9)
+        self.add(title)
+
+        #Img6
+        img = ImageMobject("image6.png").scale(0.9)
+        img.set_opacity(0)
+
+        # === Quote ===
+        quote = Text(
+            '"A simpleton admires complexity. A genius admires simplicity." – Terry A. Davis',
+            font_size=28,
+            color=WHITE
+        ).next_to(img, DOWN, buff=0.5)
+
+        self.add(img, quote)
+        quote.set_opacity(0)
+
+        #Img1&2
+        self.play(
+            img.animate.set_opacity(1),
+            quote.animate.set_opacity(1),
+            run_time=3.5,
+            rate_func=smooth
+        )
+        self.wait(0.5)
+        self.play(
+            img.animate.set_opacity(0),
+            quote.animate.set_opacity(0),
+            run_time=1.5,
+            rate_func=smooth
+        )
+        #Imgs1&2
+        img1 = ImageMobject("image1.png").scale(0.9).shift(LEFT * 3)
+        img2 = ImageMobject("image2.png").scale(0.9).shift(RIGHT * 3)
+        img1.set_opacity(0)
+        img2.set_opacity(0)
+        self.add(img1, img2)
+
+        self.wait(3)
+        self.play(
+            img1.animate.set_opacity(1),
+            img2.animate.set_opacity(1),
+            run_time=3,
+            rate_func=smooth
+        )
+        self.wait(2)  # images visible till ~8 s
+        self.play(FadeOut(img1), FadeOut(img2), run_time=1)
+
+        #Graph
+        vertices = [0, 1, 2, 3, 4]
+        layout = {
+            0: 2 * UP,
+            1: 1.5 * LEFT + 0.5 * DOWN,
+            2: 1.5 * RIGHT + 0.5 * DOWN,
+            3: LEFT + 2 * DOWN,
+            4: RIGHT + 2 * DOWN,
+        }
+        edges = [(i, j) for i in vertices for j in vertices if i < j]
+
+        g = Graph(
+            vertices,
+            edges,
+            layout=layout,
+            vertex_config={"radius": 0.12, "fill_color": BLUE},
+            edge_config={"stroke_color": WHITE, "stroke_width": 1.5},
+        ).scale(1.0)
+
+        self.play(Create(g), run_time=2)
+
+        #Separate bottom vertices
+        self.play(
+            g[3].animate.shift(DOWN * 0.8),
+            g[4].animate.shift(DOWN * 0.8),
+            run_time=3
+        )
+
+        #Fade out edges connected to them
+        edges_to_remove = [edge for edge in g.edges if 3 in edge or 4 in edge]
+        self.play(*[FadeOut(g.edges[e]) for e in edges_to_remove], run_time=1.5)
+
+        #Move them apart
+        self.play(
+            g[3].animate.shift(LEFT * 1.2),
+            g[4].animate.shift(RIGHT * 1.2),
+            run_time=3
+        )
+
+        #Fade entire graph out
+        self.play(FadeOut(g), run_time=1.5)
+        self.wait(1)
