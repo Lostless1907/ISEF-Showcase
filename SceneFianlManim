@@ -1,0 +1,91 @@
+from manim import *
+import random
+
+class GapKPart3(Scene):
+    def construct(self):
+        self.camera.background_color = BLACK
+
+        # 3b1b pi so peak
+        pi_symbol = MathTex("\\pi", color=BLUE_E).scale(3)
+        left_eye = Circle(radius=0.15, color=WHITE, fill_opacity=1).move_to(pi_symbol.get_center() + 0.35*UP + 0.25*RIGHT)
+        right_eye = Circle(radius=0.15, color=WHITE, fill_opacity=1).move_to(pi_symbol.get_center() + 0.35*UP + 0.75*RIGHT)
+        left_pupil = Dot(left_eye.get_center() + 0.05*DOWN + 0.03*RIGHT, color=BLACK)
+        right_pupil = Dot(right_eye.get_center() + 0.05*DOWN + 0.03*RIGHT, color=BLACK)
+        left_arm = Line(pi_symbol.get_center() + 0.3*LEFT + 0.2*DOWN, pi_symbol.get_center() + 0.8*LEFT + 0.4*DOWN, color=WHITE)
+        right_arm = Line(pi_symbol.get_center() + 0.5*RIGHT + 0.2*DOWN, pi_symbol.get_center() + 0.8*RIGHT + 0.8*UP, color=WHITE)
+
+        pi_group = VGroup(pi_symbol, left_eye, right_eye, left_pupil, right_pupil, left_arm, right_arm)
+
+        self.play(Write(pi_symbol), FadeIn(left_eye), FadeIn(right_eye), FadeIn(left_pupil), FadeIn(right_pupil), FadeIn(left_arm), FadeIn(right_arm), run_time=2)
+        self.play(right_arm.animate.rotate(0.3, about_point=right_arm.get_start()), run_time=1.5)
+        self.play(right_arm.animate.rotate(-0.3, about_point=right_arm.get_start()), run_time=1.5)
+        self.wait(0.5)
+
+        # Graphs
+        layouts = [
+            {"A": [-2, 0, 0], "B": [0, 2, 0], "C": [2, 0, 0], "D": [0, -2, 0]},
+            {"A": [-2, 0, 0], "B": [2, 0, 0]},
+            {"A": [-2, 0, 0], "B": [0, 2, 0], "C": [2, 0, 0]},
+        ]
+        edge_sets = [
+            [("A", "B"), ("B", "C"), ("C", "D"), ("D", "A"), ("A", "C"), ("B", "D")],
+            [("A", "B")],
+            [("A", "B"), ("B", "C"), ("C", "A")],
+        ]
+        graphs = []
+        for layout, edges in zip(layouts, edge_sets):
+            g = Graph(list(layout.keys()), edges, layout=layout,
+                      vertex_config={"fill_color": BLUE_E},
+                      edge_config={"stroke_color": BLUE_E})
+            graphs.append(g)
+
+        self.play(FadeOut(pi_group), FadeIn(graphs[0]), run_time=2)
+
+        current_graph = graphs[0]
+        for i in range(1, len(graphs)):
+            self.play(FadeOut(current_graph), run_time=1)
+            self.play(FadeIn(graphs[i]), run_time=2)
+            self.wait(1)
+
+        self.wait(1)
+        self.play(FadeOut(current_graph), run_time=1.5)
+
+        # Computing Model
+        data_box = Rectangle(color=RED, height=1, width=4).set_fill(BLACK, opacity=1)
+        algo_box = Rectangle(color=GREEN, height=1, width=4).set_fill(BLACK, opacity=1)
+        output_box = Rectangle(color=BLUE, height=1, width=4).set_fill(BLACK, opacity=1)
+
+        data_text = Text("Data", color=WHITE)
+        algo_text = Text("Algorithm", color=WHITE)
+        output_text = Text("Output", color=WHITE)
+
+        data_group = VGroup(data_box, data_text)
+        algo_group = VGroup(algo_box, algo_text)
+        output_group = VGroup(output_box, output_text)
+
+        group = VGroup(data_group, algo_group, output_group).arrange(RIGHT, buff=1.5).scale(0.9).move_to(ORIGIN)
+        arrows = VGroup(
+            Arrow(data_group.get_right(), algo_group.get_left(), buff=0.2, color=WHITE),
+            Arrow(algo_group.get_right(), output_group.get_left(), buff=0.2, color=WHITE)
+        )
+        model = VGroup(group, arrows)
+
+        self.play(FadeIn(model), run_time=2)
+
+        # Math Flow
+        math_symbols = ["\\alpha", "\\beta", "\\Gamma", "\\int", "\\Sigma", "\\pi", "\\sum", "\\nabla", "\\Delta"]
+        for _ in range(7):
+            symbol_in = MathTex(random.choice(math_symbols), color=WHITE).scale(1.2)
+            symbol_out = MathTex(random.choice(math_symbols), color=WHITE).scale(1.2)
+            symbol_in.move_to(data_group.get_left() + LEFT*0.8)
+            symbol_out.move_to(output_group.get_right() + RIGHT*0.8)
+
+            self.play(FadeIn(symbol_in), run_time=0.4)
+            self.play(symbol_in.animate.move_to(algo_group), run_time=1)
+            self.play(FadeOut(symbol_in), run_time=0.4)  # fade out as it goes into algorithm
+            self.play(FadeIn(symbol_out), run_time=0.4)  # fade in as output appears
+            self.play(symbol_out.animate.move_to(output_group.get_right() + RIGHT*0.8), run_time=1)
+            self.play(FadeOut(symbol_out), run_time=0.4)
+
+        self.wait(2)
+        self.play(FadeOut(model), run_time=1.5)
