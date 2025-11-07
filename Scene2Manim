@@ -1,1 +1,60 @@
+from manim import *
+
+class GapKPart2(Scene):
+    def construct(self):
+        #More Stuff
+        self.camera.background_color = BLACK
+
+        # Img3
+        img1 = ImageMobject("image3.png").scale(0.9)
+        img1.set_opacity(0)
+        self.add(img1)
+
+        # Wait 5s before first image appears
+        self.wait(5)
+        self.play(img1.animate.set_opacity(1), run_time=1.5)
+        self.wait(3.5)  # stays visible until 10s
+        self.play(FadeOut(img1), run_time=1.5)
+
+        #Img4&5
+        img2 = ImageMobject("image4.png").scale(0.9).shift(LEFT * 3)
+        img3 = ImageMobject("image5.png").scale(0.9).shift(RIGHT * 3)
+        img2.set_opacity(0)
+        img3.set_opacity(0)
+
+        # Labels
+        label_alg = Text("Algorithms", font_size=28, color=WHITE).scale(0.9)
+        label_net = Text("Network Theory", font_size=28, color=WHITE).scale(0.9)
+
+        label_alg.next_to(img2, DOWN)  # text under image4
+        label_net.next_to(img3, DOWN)  # text under image5
+
+        label_alg.set_opacity(0)
+        label_net.set_opacity(0)
+
+        self.add(img2, img3, label_alg, label_net)
+
+        # Wait 5s, then fade in images and text
+        self.wait(5)
+        self.play(
+            img2.animate.set_opacity(1),
+            img3.animate.set_opacity(1),
+            label_alg.animate.set_opacity(1),
+            label_net.animate.set_opacity(1),
+            run_time=1.5
+        )
+
+        # Hold visible for 3.5s (till ~20s)
+        self.wait(3.5)
+
+        # Fade out both images and their labels
+        self.play(
+            FadeOut(img2),
+            FadeOut(img3),
+            FadeOut(label_alg),
+            FadeOut(label_net),
+            run_time=1.5
+        )
+
+        self.wait(1)
 
